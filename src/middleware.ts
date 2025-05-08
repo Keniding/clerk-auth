@@ -1,6 +1,15 @@
 import { defineMiddleware } from "astro:middleware";
+import { clerkMiddleware } from "@clerk/astro/server";
 
-export const onRequest = defineMiddleware((context, next) => {
+// Middleware de Clerk
+const clerk = clerkMiddleware();
+
+// Middleware de redirección de idioma (en proceso de desarrollo)
+export const onRequest = defineMiddleware(async (context, next) => {
+  // Primero aplicamos el middleware de Clerk
+  const clerkResponse = await clerk(context, next);
+  if (clerkResponse) return clerkResponse;
+  
   // Si ya estamos en una ruta de idioma, continuar
   const url = new URL(context.request.url);
   const pathSegments = url.pathname.split('/').filter(Boolean);
