@@ -7,7 +7,9 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [clerk()],
+  integrations: [
+    clerk(),
+  ],
   adapter: node({ mode: "standalone" }),
   output: "server",
   vite: {
