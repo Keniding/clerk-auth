@@ -1,8 +1,20 @@
 import { defineMiddleware } from "astro:middleware";
-import { clerkMiddleware } from "@clerk/astro/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/astro/server";
+
+const isProtectedRoute = createRouteMatcher([
+  "/docs(.*)",
+])
 
 // Middleware de Clerk
-const clerk = clerkMiddleware();
+const clerk = clerkMiddleware((auth, context) => {
+  const { userId, redirectToSignIn } = auth();
+  
+  if (isProtectedRoute(context.request)) {
+    if (!userId) {
+      return redirectToSignIn();
+    }
+  }
+});
 
 // Middleware de redirección de idioma (en proceso de desarrollo)
 export const onRequest = defineMiddleware(async (context, next) => {
@@ -35,7 +47,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     // const targetLang = supportedLanguages.includes(baseLanguage) ? baseLanguage : 'en';
     // return context.redirect(`/${targetLang}${url.pathname === '/' ? '' : url.pathname}`);
   }
-  
+
   switch (acceptLanguage) {
     case 'de':
     case 'fr':
